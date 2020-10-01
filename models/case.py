@@ -9,10 +9,10 @@ class CaseModel(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(30))
     description = db.Column(db.Text(256))
-    start_time = db.Column(db.DateTime, default=datetime.datetime.utcnow())
+    start_time = db.Column(db.DateTime, default=datetime.datetime.now())
     end_time = db.Column(db.DateTime)
 
-    # status = db.Column(db.String(15), default='new')  # new, planned, in_progress, completed
+    history = db.relationship('CaseHistoryModel', cascade="all,delete")
     status_id = db.Column(db.Integer, db.ForeignKey('statuses.id'))
     status = db.relationship('StatusModel')
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
@@ -29,8 +29,8 @@ class CaseModel(db.Model):
             'id': self.id,
             'name': self.name,
             'description': self.description,
-            'start_time': str(self.start_time.strftime('%H:%M %d.%m.%Y')),
-            'end_time': str(self.end_time.strftime('%H:%M %d.%m.%Y')),
+            'start_time': str(self.start_time.strftime('%H:%M:%S %d.%m.%Y')),
+            'end_time': str(self.end_time.strftime('%H:%M:%S %d.%m.%Y')),
             'status': self.status.name,
             'user_id': self.user_id
         }

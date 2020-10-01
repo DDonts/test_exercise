@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 from db import db
 from resources.user import UserRegister, UserLogin, UserLogout, TokenRefresh, SetPassword
-from resources.case import Case
+from resources.case import Case, CaseHistory
 from blacklist import BLACKLIST
 
 from models.status import StatusModel
@@ -90,6 +90,7 @@ api.add_resource(UserLogout, '/logout')
 api.add_resource(Case, '/case')
 api.add_resource(TokenRefresh, '/refresh')
 api.add_resource(SetPassword, '/change_password')
+api.add_resource(CaseHistory, '/case_history')
 
 
 if __name__ == '__main__':
