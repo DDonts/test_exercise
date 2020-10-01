@@ -1,11 +1,6 @@
 import datetime
 from db import db
-
-# from .status import StatusModel
-#
-# statuses_to_cases = db.Table('statuses_to_cases',
-#                              db.Column('case_id', db.Integer, db.ForeignKey('case.id')),
-#                              db.Column('status_id', db.Integer, db.ForeignKey('status.id')))
+from .status import StatusModel
 
 
 class CaseModel(db.Model):
@@ -17,8 +12,9 @@ class CaseModel(db.Model):
     start_time = db.Column(db.DateTime, default=datetime.datetime.utcnow())
     end_time = db.Column(db.DateTime)
 
-    status = db.Column(db.String(15), default='new')  # new, planned, in_progress, completed
-    # status = db.relationship('StatusModel', secondary=statuses_to_cases)
+    # status = db.Column(db.String(15), default='new')  # new, planned, in_progress, completed
+    status_id = db.Column(db.Integer, db.ForeignKey('statuses.id'))
+    status = db.relationship('StatusModel')
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
     def __init__(self, name, description, end_time, user_id):
@@ -26,7 +22,7 @@ class CaseModel(db.Model):
         self.description = description
         self.end_time = end_time
         self.user_id = user_id
-        # self.status = StatusModel.query.filter_by(name='New').first()
+        self.status = StatusModel.query.filter_by(name='New').first()
 
     def json(self):
         return {
@@ -35,7 +31,7 @@ class CaseModel(db.Model):
             'description': self.description,
             'start_time': str(self.start_time.strftime('%H:%M %d.%m.%Y')),
             'end_time': str(self.end_time.strftime('%H:%M %d.%m.%Y')),
-            'status': self.status,
+            'status': self.status.name,
             'user_id': self.user_id
         }
 
@@ -58,5 +54,5 @@ class CaseModel(db.Model):
     @classmethod
     def find_all_by_user_id(cls, user_id, status="%%", end_time="%%"):
         return cls.query.filter((CaseModel.user_id == user_id) &
-                                (CaseModel.status.like(status)) &
+                                (CaseModel.status_id.like(status)) &
                                 (CaseModel.end_time.like(end_time))).all()

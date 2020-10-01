@@ -2,10 +2,15 @@ from datetime import datetime
 
 from flask_restful import Resource
 from flask import request
-from flask_jwt_extended import (jwt_required,
-                                get_jwt_identity,
-                                fresh_jwt_required)
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from models.case import CaseModel
+
+statuses = {
+    'New': 1,
+    'Planned': 2,
+    'In progress': 3,
+    'Completed': 4
+}
 
 
 class Case(Resource):
@@ -35,7 +40,7 @@ class Case(Resource):
         cases = [case.json() for case in CaseModel.find_all_by_user_id(user, data['status'], data['end_time'])]
         return {'cases': cases}, 200
 
-    @fresh_jwt_required
+    @jwt_required
     def post(self):
         """
         URL: http://{{server_url}}/case
@@ -56,13 +61,15 @@ class Case(Resource):
         data = request.get_json()
         if len(data['name']) > 30:
             return {'message': "Name is too long. Max length is 30 symbols"}, 400
-        if len(data['description']) > 256:
-            return {'message': "Description is too long. Max length is 256 symbols"}, 400
         if CaseModel.find_by_name_and_user_id(data['name'], user):
             return {'message': "An case with name '{}' already exists.".format(data['name'])}, 400
-
-        data['end_time'] = str(datetime.strptime(data['end_time'], '%H:%M %d.%m.%Y'))
-
+        if len(data['description']) > 256:
+            return {'message': "Description is too long. Max length is 256 symbols"}, 400
+        end_time = datetime.strptime(data['end_time'], '%H:%M %d.%m.%Y')
+        if end_time < datetime.utcnow():
+            return {'message': "This end_time has passed."}
+        else:
+            data['end_time'] = str(end_time)
         case = CaseModel(**data, user_id=user)
 
         try:
@@ -110,8 +117,8 @@ class Case(Resource):
             "name": "name of the required case",
             "new_name": "new name of the case"               (optional)
             "new_description": "some new some description"   (optional)
-            "status": "new/planned/in_progress/completed",   (optional)
-            "end_time": "Hour:Minutes Day.Month.Year",       (optional)
+            "new_status": "new/planned/in_progress/completed",   (optional)
+            "new_end_time": "Hour:Minutes Day.Month.Year",       (optional)
         }
         :return: JSON of edited case
         """
@@ -127,15 +134,26 @@ class Case(Resource):
                     return {'message': "New name is too long. Max length is 30 symbols"}, 400
                 case.name = data['new_name']
             if 'new_description' in data:
-                if len(data['description']) > 256:
+                if len(data['new_description']) > 256:
                     return {'message': "New description is too long. Max length is 256 symbols"}, 400
                 case.description = data['new_description']
             if 'new_status' in data:
-                case.status = data['new_status']
+                if data['new_status'] in statuses:
+                    case.status_id = statuses[data['new_status']]
+                else:
+                    return {'message': "Wrong status format. "
+                                       "Available statuses: New, Planned, In progress, Completed"}, 400
             if 'new_end_time' in data:
-                case.end_time = str(datetime.strptime(data['new_end_time'], '%H:%M %d.%m.%Y'))
+                new_date = datetime.strptime(data['new_end_time'], '%H:%M %d.%m.%Y')
+                if new_date < case.start_time:
+                    return {'message': "This new end_time has passed."}
+                else:
+                    case.end_time = str(new_date)
         else:
             return {'message': 'Case not found.'}, 404
-        case.save_to_db()
+        try:
+            case.save_to_db()
+        except:
+            return {"message": "An error occurred updating the case."}, 500
 
         return case.json()

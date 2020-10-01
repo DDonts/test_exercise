@@ -9,7 +9,10 @@ Set mysql URI and secret key in ".env" file
 python app.py
 
 ## Usage
-Before first request, two tables(users and cases) will be created in in a manually created database.
+Before first request, three tables(users, cases and statuses) will be created in in a manually created database.
+"users" table contains user's usernames, encrypted passwords and ids of cases.
+"cases" table contains information about user's cases like name, description, start and end datetime, id of status.
+"statuses" table initializes on first request to API and contains 4 statuses of cases: New, Planned, In progress and Completed.  
 
 #### Registration
     URL: http://{{server_url}}/register
@@ -52,7 +55,7 @@ Before first request, two tables(users and cases) will be created in in a manual
     
     Headers:
         Content-Type: application/json
-        Authorization: "Bearer {{access_token}}"
+        Authorization: "Bearer {{refresh_token}}"
     Input: {}
     
     return: JSON of a new access_token

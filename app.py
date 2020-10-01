@@ -10,7 +10,7 @@ from resources.user import UserRegister, UserLogin, UserLogout, TokenRefresh, Se
 from resources.case import Case
 from blacklist import BLACKLIST
 
-# from models.status import StatusModel
+from models.status import StatusModel
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(basedir, '.env'))
@@ -76,10 +76,12 @@ def revoked_token_callback():
 @app.before_first_request
 def create_tables():
     db.create_all()
-    statuses = ['New', 'Planned', 'In progress', 'Completed']
-    # for status in statuses:
-    #     db.session.add(StatusModel(status_name=status))
-    # db.session.commit()
+
+    if not StatusModel.query.filter_by(name='New').first():
+        statuses = ['New', 'Planned', 'In progress', 'Completed']
+        for status in statuses:
+            db.session.add(StatusModel(name=status))
+        db.session.commit()
 
 
 api.add_resource(UserRegister, '/register')
