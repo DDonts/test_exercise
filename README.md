@@ -9,12 +9,20 @@ Set mysql URI and secret key in ".env" file
 python app.py
 
 ## Usage
+
 Before first request, three tables(users, cases and statuses) will be created in in a manually created database.
+
 "users" table contains user's usernames, encrypted passwords and ids of cases.
+
 "cases" table contains information about user's cases like name, description, start and end datetime, id of status.
+
 "statuses" table initializes on first request to API and contains 4 statuses of cases: New, Planned, In progress and Completed.  
 
+Also this repository contains postman_collention for PostMan-tests.
+
 #### Registration
+Creates a new user in application.
+
     URL: http://{{server_url}}/register
     METHOD: POST
     
@@ -27,7 +35,12 @@ Before first request, three tables(users, cases and statuses) will be created in
     }
     return: JSON of report message
     
+    
 #### Login in
+Logging user in. Create a access_token and refresh_token for access to api.
+
+Also recreate access_token and refresh_token if it expired.
+    
     URL: http://{{server_url}}/login
     METHOD: POST
     
@@ -38,8 +51,11 @@ Before first request, three tables(users, cases and statuses) will be created in
         "password": "max length 80"
     }
     return: JSON of fully fresh "access-" and "refresh-" tokens
+    
  
 #### Log out  
+Logging user out. Appending his access_token to blacklist.
+
     URL: http://{{server_url}}/logout
     METHOD: POST
     
@@ -48,8 +64,11 @@ Before first request, three tables(users, cases and statuses) will be created in
     Input: {}
     
     return: JSON of report message
+    
 
 #### Refresh access token
+Refreshing expired access_token.
+ 
     URL: http://{{server_url}}/refresh
     METHOD: POST
     
@@ -59,8 +78,11 @@ Before first request, three tables(users, cases and statuses) will be created in
     Input: {}
     
     return: JSON of a new access_token
+    
    
 #### Change password
+Changing user's password only if he logged in and has access token.
+
     URL: http://{{server_url}}/change_password
     METHOD: POST
     
@@ -73,8 +95,11 @@ Before first request, three tables(users, cases and statuses) will be created in
     }
     
     return: JSON of a new access_token
+    
 
 #### Get cases by optional condition
+Getting list of user's cases. Also you can provide optional fields(status or end_time) to filter by them.
+
     URL: http://{{server_url}}/case
     METHOD: GET
     
@@ -86,6 +111,11 @@ Before first request, three tables(users, cases and statuses) will be created in
     return: List of cases
  
 #### Add new case
+Creating a new case for user.
+
+You have to provide access_token in Authorization header, name, description and end_time of case.
+
+
         URL: http://{{server_url}}/case
         METHOD: POST
         
@@ -101,6 +131,8 @@ Before first request, three tables(users, cases and statuses) will be created in
     return: JSON of created case.
 
 #### Delete case
+Deleting case by name.
+
     URL: http://{{server_url}}/case
     METHOD: DELETE
     
@@ -114,6 +146,8 @@ Before first request, three tables(users, cases and statuses) will be created in
     return: JSON of report message
     
 #### Update case
+Update case by name. Yor can provide optional fields (new_name, new_description, status and end_time)
+
     URL: http://{{server_url}}/case
     METHOD: PUT
     
@@ -130,8 +164,18 @@ Before first request, three tables(users, cases and statuses) will be created in
     }
     return: JSON of edited case
 
+#### Getting case history
+Getting case history/logs by name.
 
+    URL: http://{{server_url}}/case_history
+    METHOD: POST
 
+    Headers:
+        Content-Type: application/json
+        Authorization: "Bearer {{access_token}}"
 
-
+    Input: {
+        "name": "name of the required case"
+    }
+    :return: JSON of history of case.
 
