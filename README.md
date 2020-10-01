@@ -5,12 +5,14 @@ pip install -r requirements.txt
 
 Set mysql URI and secret key in ".env" file
 
+Start MySQL server and create database that setted in URI.
+
 ## Run
 python app.py
 
 ## Usage
 
-Before first request, three tables(users, cases and statuses) will be created in in a manually created database.
+Before first request, three tables(users, cases and statuses) will be created in a manually created database.
 
 "users" table contains user's usernames, encrypted passwords and ids of cases.
 
