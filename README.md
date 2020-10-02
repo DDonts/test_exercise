@@ -20,6 +20,7 @@ Before first request, three tables(users, cases and statuses) will be created in
 
 
 "REST TEST.postman_environment.json" file for PostMan contains all necessary environment variables to test API. 
+
 "REST TEST.postman_collection.json" file for PostMan contains all requests to test API. 
 
 "Login" and "Refresh token" requests contains tests that automatically sets access_token and refresh_token as environment variables of PostMan.

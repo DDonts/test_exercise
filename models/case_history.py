@@ -25,6 +25,9 @@ class CaseHistoryModel(db.Model):
 
     def save_to_db(self):
         db.session.add(self)
+
+    @staticmethod
+    def commit_changes():
         db.session.commit()
 
     @classmethod

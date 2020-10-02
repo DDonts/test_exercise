@@ -265,7 +265,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"Купить вина\",\n    \"new_name\": \"Купить виноград\",\n    \"new_description\": \"Я не алкоголик!\",\n    \"new_end_time\": \"19:30:23 01.10.2021\",\n    \"status\": \"In progress\"\n}"
+							"raw": "{\n    \"name\": \"Купить вина\",\n    \"new_name\": \"Купить виноград\",\n    \"new_description\": \"Я не алкоголик!\",\n    \"new_end_time\": \"19:30:23 01.10.2021\",\n    \"new_status\": \"In progress\"\n}"
 						},
 						"url": {
 							"raw": "{{server_url}}/case",

@@ -38,7 +38,7 @@ def check_if_token_in_blacklist(decrypted_token):
 def expired_token_callback():
     return jsonify({
         'error': 'token_expired',
-        'description': 'The token has expired'
+        'description': 'The token has expired. Please, Refresh access token.'
     }), 401
 
 
@@ -62,7 +62,7 @@ def missing_token_callback(error):
 def token_not_fresh_callback():
     return jsonify({
         'error': 'fresh_token_required',
-        'description': 'The token is not fresh.'
+        'description': 'The token is not fresh. Please, log in.'
         }), 401
 
 

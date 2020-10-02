@@ -14,11 +14,14 @@ statuses = {
     'Completed': 4
 }
 
+logs = []
+
 
 def logging_of_editing(field: str, old: str, new: str, case_id: int):
     operation = field + ": '" + old + "' -> '" + new + "'."
     new_log = CaseHistoryModel(operation, case_id)
     new_log.save_to_db()
+    logs.append(new_log)
 
 
 class Case(Resource):
@@ -96,7 +99,9 @@ class Case(Resource):
                 case.save_to_db()
             except:
                 return {"message": "An error occurred inserting the case."}, 500
-            logging_of_editing('Creating', '', '', case.id)
+            logging_of_editing('Creating', '', data['name'], case.id)
+            logs[0].commit_changes()
+            logs.clear()
         except:
             return {'message': 'Internal server error'}, 500
         return case.json(), 201
@@ -152,6 +157,7 @@ class Case(Resource):
         try:
             user = get_jwt_identity()
             case = CaseModel.find_by_name_and_user_id(data['name'], user)
+            case_tmp = case
             if case:
                 if 'new_name' in data:
                     if CaseModel.find_by_name_and_user_id(data['new_name'], user):
@@ -197,6 +203,9 @@ class Case(Resource):
                 return {'message': 'Case not found.'}, 404
             try:
                 case.save_to_db()
+                for i in logs:
+                    i.commit_changes()
+                logs.clear()
             except:
                 return {"message": "An error occurred updating the case."}, 500
         except:
@@ -225,8 +234,8 @@ class CaseHistory(Resource):
         try:
             user = get_jwt_identity()
             case = CaseModel.find_by_name_and_user_id(data['name'], user)
-            case_id = case.id
             if case:
+                case_id = case.id
                 case_history = [history.json() for history in CaseHistoryModel.find_all_by_case_id(case_id)]
                 return {'history': case_history}, 200
             else:
