@@ -52,6 +52,11 @@ class Case(Resource):
                     return {'message': 'Incorrect datetime format'}, 400
             if "status" not in data:
                 data['status'] = "%%"
+            if data['status'] in statuses:
+                data['status'] = statuses[data['status']]
+            else:
+                return {'message': "Wrong status format. "
+                                   "Available statuses: New, Planned, In progress, Completed"}, 400
             cases = [case.json() for case in CaseModel.find_all_by_user_id(user, data['status'], data['end_time'])]
             return {'cases': cases}, 200
         except:
