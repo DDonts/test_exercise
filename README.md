@@ -5,14 +5,12 @@ pip install -r requirements.txt
 
 Set mysql URI and secret key in ".env" file
 
-Start MySQL server and create database that setted in URI.
-
 ## Run
 python app.py
 
 ## Usage
 
-Before first request, three tables(users, cases and statuses) will be created in a manually created database.
+Before first request, three tables(users, cases and statuses) will be created in in a manually created database.
 
 "users" table contains user's usernames, encrypted passwords and ids of cases.
 
@@ -20,7 +18,11 @@ Before first request, three tables(users, cases and statuses) will be created in
 
 "statuses" table initializes on first request to API and contains 4 statuses of cases: New, Planned, In progress and Completed.  
 
-Also this repository contains postman_collention for PostMan-tests.
+
+"REST TEST.postman_environment.json" file for PostMan contains all necessary environment variables to test API. 
+"REST TEST.postman_collection.json" file for PostMan contains all requests to test API. 
+
+"Login" and "Refresh token" requests contains tests that automatically sets access_token and refresh_token as environment variables of PostMan.
 
 #### Registration
 Creates a new user in application.
@@ -30,7 +32,6 @@ Creates a new user in application.
     
     Headers:
         Content-Type: application/json
-        Authorization: "Bearer {{access_token}}"
     Input: {
         "username": "preferred username"
         "password": "preferred password"
@@ -56,7 +57,7 @@ Also recreate access_token and refresh_token if it expired.
     
  
 #### Log out  
-Logging user out. Appending his access_token to blacklist.
+Logging user out by access_token of user. Appending his access_token to blacklist.
 
     URL: http://{{server_url}}/logout
     METHOD: POST
@@ -69,7 +70,7 @@ Logging user out. Appending his access_token to blacklist.
     
 
 #### Refresh access token
-Refreshing expired access_token.
+Refreshing expired access_token by refresh_token of user.
  
     URL: http://{{server_url}}/refresh
     METHOD: POST
@@ -83,7 +84,7 @@ Refreshing expired access_token.
     
    
 #### Change password
-Changing user's password only if he logged in and has access token.
+Changing user's password by access_token of user.
 
     URL: http://{{server_url}}/change_password
     METHOD: POST
@@ -100,7 +101,7 @@ Changing user's password only if he logged in and has access token.
     
 
 #### Get cases by optional condition
-Getting list of user's cases. Also you can provide optional fields(status or end_time) to filter by them.
+Getting list of user's cases by access_token of user. Also you can provide optional fields(status or end_time) to filter by them.
 
     URL: http://{{server_url}}/case
     METHOD: GET
@@ -113,7 +114,7 @@ Getting list of user's cases. Also you can provide optional fields(status or end
     return: List of cases
  
 #### Add new case
-Creating a new case for user.
+Creating a new case by access_token of user.
 
 You have to provide access_token in Authorization header, name, description and end_time of case.
 
@@ -133,7 +134,7 @@ You have to provide access_token in Authorization header, name, description and 
     return: JSON of created case.
 
 #### Delete case
-Deleting case by name.
+Deleting case by name and access_token of user.
 
     URL: http://{{server_url}}/case
     METHOD: DELETE
@@ -148,7 +149,7 @@ Deleting case by name.
     return: JSON of report message
     
 #### Update case
-Update case by name. Yor can provide optional fields (new_name, new_description, status and end_time)
+Update case by name and access_token of user. Yor can provide optional fields (new_name, new_description, status and end_time)
 
     URL: http://{{server_url}}/case
     METHOD: PUT
@@ -167,7 +168,7 @@ Update case by name. Yor can provide optional fields (new_name, new_description,
     return: JSON of edited case
 
 #### Getting case history
-Getting case history/logs by name.
+Getting case history/logs by name of case and access_token of user.
 
     URL: http://{{server_url}}/case_history
     METHOD: POST
@@ -179,5 +180,5 @@ Getting case history/logs by name.
     Input: {
         "name": "name of the required case"
     }
-    :return: JSON of history of case.
+    return: JSON of history of case.
 

@@ -24,9 +24,9 @@
 							"raw": "{\n  \"username\": \"Donts\",\n  \"password\": \"12345\"\n}"
 						},
 						"url": {
-							"raw": "{{url}}/register",
+							"raw": "{{server_url}}/register",
 							"host": [
-								"{{url}}"
+								"{{server_url}}"
 							],
 							"path": [
 								"register"
@@ -55,9 +55,9 @@
 							"raw": "{\n\t\"username\": \"Donts\",\n\t\"new_password\": \"12345\"\n}"
 						},
 						"url": {
-							"raw": "{{server_address}}/change_password",
+							"raw": "{{server_url}}/change_password",
 							"host": [
-								"{{server_address}}"
+								"{{server_url}}"
 							],
 							"path": [
 								"change_password"
@@ -112,9 +112,9 @@
 							"raw": "{\n  \"username\" : \"Donts\",\n  \"password\" : \"12345\"\n}"
 						},
 						"url": {
-							"raw": "{{server_address}}/login",
+							"raw": "{{server_url}}/login",
 							"host": [
-								"{{server_address}}"
+								"{{server_url}}"
 							],
 							"path": [
 								"login"
@@ -150,9 +150,9 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "{{server_address}}/logout",
+							"raw": "{{server_url}}/logout",
 							"host": [
-								"{{server_address}}"
+								"{{server_url}}"
 							],
 							"path": [
 								"logout"
@@ -201,9 +201,9 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "{{url}}/refresh",
+							"raw": "{{server_url}}/refresh",
 							"host": [
-								"{{url}}"
+								"{{server_url}}"
 							],
 							"path": [
 								"refresh"
@@ -237,9 +237,9 @@
 							"raw": "{\n    \"name\": \"Купить вина\",\n    \"description\": \"Нужно хорошо провести вечер, расслабиться...\",\n    \"end_time\": \"12:30:12 10.10.2021\"\n}"
 						},
 						"url": {
-							"raw": "{{server_address}}/case",
+							"raw": "{{server_url}}/case",
 							"host": [
-								"{{server_address}}"
+								"{{server_url}}"
 							],
 							"path": [
 								"case"
@@ -265,12 +265,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"Купить виноград\",\n    \"new_description\": \"Я не алкоголик!\",\n    \"new_end_time\": \"19:30:23 01.10.2021\",\n    \"status\": \"In progress\"\n}"
+							"raw": "{\n    \"name\": \"Купить вина\",\n    \"new_name\": \"Купить виноград\",\n    \"new_description\": \"Я не алкоголик!\",\n    \"new_end_time\": \"19:30:23 01.10.2021\",\n    \"status\": \"In progress\"\n}"
 						},
 						"url": {
-							"raw": "{{server_address}}/case",
+							"raw": "{{server_url}}/case",
 							"host": [
-								"{{server_address}}"
+								"{{server_url}}"
 							],
 							"path": [
 								"case"
@@ -298,9 +298,9 @@
 							"raw": "{\n    \"name\": \"Купить виноград\"\n}"
 						},
 						"url": {
-							"raw": "{{server_address}}/case_history",
+							"raw": "{{server_url}}/case_history",
 							"host": [
-								"{{server_address}}"
+								"{{server_url}}"
 							],
 							"path": [
 								"case_history"
@@ -328,9 +328,9 @@
 							"raw": "{\r\n    \"name\": \"Купить виноград\"\r\n}"
 						},
 						"url": {
-							"raw": "{{server_address}}/case",
+							"raw": "{{server_url}}/case",
 							"host": [
-								"{{server_address}}"
+								"{{server_url}}"
 							],
 							"path": [
 								"case"
@@ -363,9 +363,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{server_address}}/case",
+							"raw": "{{server_url}}/case",
 							"host": [
-								"{{server_address}}"
+								"{{server_url}}"
 							],
 							"path": [
 								"case"

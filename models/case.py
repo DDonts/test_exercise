@@ -26,7 +26,6 @@ class CaseModel(db.Model):
 
     def json(self):
         return {
-            'id': self.id,
             'name': self.name,
             'description': self.description,
             'start_time': str(self.start_time.strftime('%H:%M:%S %d.%m.%Y')),

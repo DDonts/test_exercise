@@ -1,6 +1,5 @@
 from flask_restful import Resource
 from flask import request
-from models.user import UserModel
 from flask_jwt_extended import (create_access_token,
                                 create_refresh_token,
                                 jwt_refresh_token_required,
@@ -9,7 +8,9 @@ from flask_jwt_extended import (create_access_token,
                                 jwt_required,
                                 get_raw_jwt)
 import bcrypt
+
 from blacklist import BLACKLIST
+from models.user import UserModel
 
 
 class UserRegister(Resource):
@@ -28,16 +29,17 @@ class UserRegister(Resource):
         :return: JSON of report message
         """
         data = request.get_json()
+        try:
+            if UserModel.find_by_username(data['username']):
+                return {"message": "A user with that username already exists"}, 400
 
-        if UserModel.find_by_username(data['username']):
-            return {"message": "A user with that username already exists"}, 400
+            password = bytes(data["password"], encoding='utf-8')
+            hashed_password = bcrypt.hashpw(password, bcrypt.gensalt())
 
-        password = bytes(data["password"], encoding='utf-8')
-        hashed_password = bcrypt.hashpw(password, bcrypt.gensalt())
-
-        user = UserModel(data['username'], hashed_password)
-        user.save_to_db()
-
+            user = UserModel(data['username'], hashed_password)
+            user.save_to_db()
+        except:
+            return {'message': 'Internal server error'}, 500
         return {"message": "User created successfully."}, 201
 
 
@@ -57,17 +59,19 @@ class UserLogin(Resource):
         :return: JSON of "access-" and "refresh-" tokens
         """
         data = request.get_json()
-        user = UserModel.find_by_username(data['username'])
-        password_from_request = bytes(data["password"], encoding='utf-8')
+        try:
+            user = UserModel.find_by_username(data['username'])
+            password_from_request = bytes(data["password"], encoding='utf-8')
 
-        if user and bcrypt.checkpw(password_from_request, bytes(user.password, encoding='utf-8')):
-            access_token = create_access_token(identity=user.id, fresh=True)
-            refresh_token = create_refresh_token(user.id)
-            return {
-                       'access_token': access_token,
-                       'refresh_token': refresh_token
-                   }, 200
-
+            if user and bcrypt.checkpw(password_from_request, bytes(user.password, encoding='utf-8')):
+                access_token = create_access_token(identity=user.id, fresh=True)
+                refresh_token = create_refresh_token(user.id)
+                return {
+                           'access_token': access_token,
+                           'refresh_token': refresh_token
+                       }, 200
+        except:
+            return {'message': 'Internal server error'}, 500
         return {'message': 'Invalid credentials'}, 401
 
 
@@ -84,8 +88,11 @@ class UserLogout(Resource):
 
         :return: JSON of report message
         """
-        jti = get_raw_jwt()['jti']
-        BLACKLIST.add(jti)
+        try:
+            jti = get_raw_jwt()['jti']
+            BLACKLIST.add(jti)
+        except:
+            return {'message': 'Internal server error'}, 500
         return {'message': 'Successfully logged out'}, 200
 
 
@@ -103,8 +110,11 @@ class TokenRefresh(Resource):
 
         :return: JSON of a new access_token
         """
-        current_user = get_jwt_identity()
-        new_token = create_access_token(identity=current_user, fresh=False)
+        try:
+            current_user = get_jwt_identity()
+            new_token = create_access_token(identity=current_user, fresh=False)
+        except:
+            return {'message': 'Internal server error'}, 500
         return {'access_token': new_token}, 200
 
 
@@ -127,12 +137,15 @@ class SetPassword(Resource):
         :return: JSON of a new access_token
         """
         data = request.get_json()
-        user = UserModel.find_by_username(data['username'])
-        if not user:
-            return {'message': 'User not found'}, 404
+        try:
+            user = UserModel.find_by_username(data['username'])
+            if not user:
+                return {'message': 'User not found'}, 404
 
-        password_from_request = bytes(data["new_password"], encoding='utf-8')
-        hashed_password = bcrypt.hashpw(password_from_request, bcrypt.gensalt())
-        user.password = hashed_password
-        user.save_to_db()
+            password_from_request = bytes(data["new_password"], encoding='utf-8')
+            hashed_password = bcrypt.hashpw(password_from_request, bcrypt.gensalt())
+            user.password = hashed_password
+            user.save_to_db()
+        except:
+            return {'message': 'Internal server error'}, 500
         return {'message': 'User password updated'}, 201

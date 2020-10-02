@@ -12,6 +12,7 @@ from blacklist import BLACKLIST
 
 from models.status import StatusModel
 
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(basedir, '.env'))
 
@@ -75,13 +76,17 @@ def revoked_token_callback():
 
 @app.before_first_request
 def create_tables():
-    db.create_all()
+    try:
+        db.create_all()
 
-    if not StatusModel.query.filter_by(name='New').first():
-        statuses = ['New', 'Planned', 'In progress', 'Completed']
-        for status in statuses:
-            db.session.add(StatusModel(name=status))
-        db.session.commit()
+        if not StatusModel.query.filter_by(name='New').first():
+            statuses = ['New', 'Planned', 'In progress', 'Completed']
+            for status in statuses:
+                db.session.add(StatusModel(name=status))
+            db.session.commit()
+    except:
+        # return {'message': 'Internal server error'}, 500
+        pass
 
 
 api.add_resource(UserRegister, '/register')
