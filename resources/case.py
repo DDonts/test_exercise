@@ -7,21 +7,45 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from models.case import CaseModel
 from models.case_history import CaseHistoryModel
 
-statuses = {
+statuses = {  # dict of allowed statuses of cases
     'New': 1,
     'Planned': 2,
     'In progress': 3,
     'Completed': 4
 }
 
-logs = []
+logs = []  # list of temporary logs, that not commited yet.
 
 
 def logging_of_editing(field: str, old: str, new: str, case_id: int):
+    """
+    Create record of changing in case table and append to logs list
+    :param field: Changed field
+    :param old: Old value
+    :param new: New value
+    :param case_id: Id of case, that has changed
+    """
     operation = field + ": '" + old + "' -> '" + new + "'."
     new_log = CaseHistoryModel(operation, case_id)
     new_log.save_to_db()
     logs.append(new_log)
+
+
+def commit_of_logging():
+    """
+    Commit saved all logs from logs-list.
+    Clear up logs-list.
+    """
+    for log in logs:
+        log.commit_changes()
+    logs.clear()
+
+
+def abort_of_logging():
+    """
+    Abort commiting of logs
+    """
+    logs.clear()
 
 
 class Case(Resource):
@@ -38,22 +62,24 @@ class Case(Resource):
         }
         :return: List of cases
         """
-        data = request.get_json()
+        data = request.get_json()  # get data from request
         try:
-            user = get_jwt_identity()
-            if not data:
+            user = get_jwt_identity()  # get user id
+            if not data:  # setting up an empty dict if no parameters in request
                 data = {}
+
             if "end_time" not in data:
-                data['end_time'] = "%%"
+                data['end_time'] = "%%"  # setting as "any"-format for sql-request
             else:
                 try:
                     data['end_time'] = str(datetime.strptime(data['end_time'], '%H:%M:%S %d.%m.%Y'))
                 except:
                     return {'message': 'Incorrect datetime format'}, 400
+
             if "status" not in data:
-                data['status'] = "%%"
-            if data['status'] in statuses:
-                data['status'] = statuses[data['status']]
+                data['status'] = "%%"  # setting as "any"-format for sql-request
+            elif data['status'] in statuses:
+                data['status'] = statuses[data['status']]  # setting as status_id
             else:
                 return {'message': "Wrong status format. "
                                    "Available statuses: New, Planned, In progress, Completed"}, 400
@@ -105,9 +131,9 @@ class Case(Resource):
             except:
                 return {"message": "An error occurred inserting the case."}, 500
             logging_of_editing('Creating', '', data['name'], case.id)
-            logs[0].commit_changes()
-            logs.clear()
+            commit_of_logging()
         except:
+            abort_of_logging()
             return {'message': 'Internal server error'}, 500
         return case.json(), 201
 
@@ -162,13 +188,12 @@ class Case(Resource):
         try:
             user = get_jwt_identity()
             case = CaseModel.find_by_name_and_user_id(data['name'], user)
-            case_tmp = case
             if case:
                 if 'new_name' in data:
-                    if CaseModel.find_by_name_and_user_id(data['new_name'], user):
-                        return {'message': "An case with name '{}' already exists.".format(data['new_name'])}, 400
                     if len(data['new_name']) > 30:
                         return {'message': "New name is too long. Max length is 30 symbols"}, 400
+                    if CaseModel.find_by_name_and_user_id(data['new_name'], user):
+                        return {'message': "An case with name '{}' already exists.".format(data['new_name'])}, 400
                     if case.name != data['new_name']:
                         logging_of_editing(field='Name', old=case.name, new=data['new_name'], case_id=case.id)
                         case.name = data['new_name']
@@ -208,12 +233,12 @@ class Case(Resource):
                 return {'message': 'Case not found.'}, 404
             try:
                 case.save_to_db()
-                for i in logs:
-                    i.commit_changes()
-                logs.clear()
+                commit_of_logging()
             except:
+                abort_of_logging()
                 return {"message": "An error occurred updating the case."}, 500
         except:
+            abort_of_logging()
             return {'message': 'Internal server error'}, 500
         return case.json()
 
